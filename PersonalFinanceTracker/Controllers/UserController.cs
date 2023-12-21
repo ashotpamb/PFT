@@ -23,12 +23,18 @@ public class UserController:Controller
     }
 
     [HttpPost]
-    // [ValidateAntiForgeryToken]
-    public IActionResult Register(UserRegister userRegister)
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult> Register(UserRegister userRegister)
     {
-        Console.WriteLine(userRegister.Email);
-        return View();
-        // _userRepository.RegisterUser(userRegister);
-        // return View();
+        try
+        {
+            await _userRepository.RegisterUser(userRegister);
+            return RedirectToAction("SignIn");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }

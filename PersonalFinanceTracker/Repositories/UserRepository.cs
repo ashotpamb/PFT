@@ -17,9 +17,9 @@ public class UserRepository : IUserRepository
     {
         if (userRegister == null)
             throw new ArgumentNullException(nameof(userRegister), "User registration data is null.");
-        var passwordHasher = new PasswordHasher<string>();
-        if (userRegister.Password != null)
+        if (!string.IsNullOrEmpty(userRegister.Password))
         {
+            var passwordHasher = new PasswordHasher<string>();
             var hashedPassword = passwordHasher.HashPassword(null, userRegister.Password);
             var user = new User
             {
@@ -28,12 +28,12 @@ public class UserRepository : IUserRepository
                 Password = hashedPassword
             };
             await _dataContext.User.AddAsync(user);
+            await _dataContext.SaveChangesAsync();
         }
         else
         {
             throw new ArgumentException("Password is null", nameof(userRegister));
         }
 
-        await _dataContext.SaveChangesAsync();
     }
 }
