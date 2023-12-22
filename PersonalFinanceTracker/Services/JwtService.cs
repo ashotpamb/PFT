@@ -35,5 +35,4 @@ public class JwtService : IJwtService
         var encryptedToken = tokenHandler.WriteToken(token);
         return encryptedToken;
     }
-    
 }

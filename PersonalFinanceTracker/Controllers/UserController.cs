@@ -7,11 +7,15 @@ namespace PersonalFinanceTracker.Controllers;
 public class UserController : Controller
 {
     private readonly IUserRepository _userRepository;
+    private readonly string? _token;
+    
 
-    public UserController(IUserRepository userRepository)
+    public UserController(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor)
     {
         _userRepository = userRepository;
+        _token = httpContextAccessor.HttpContext?.Session.GetString("AuthToken");
     }
+
 
     [HttpGet]
     public IActionResult Register()
@@ -28,24 +32,31 @@ public class UserController : Controller
 
     public IActionResult UserPage()
     {
-        var token = HttpContext.Session.GetString("AuthToken");
-
-        if (string.IsNullOrEmpty(token))
+        if (string.IsNullOrEmpty(_token))
         {
             TempData["Message"] = "Unauthorized";
             return RedirectToAction("SignIn");
         }
 
-        if (!_userRepository.CheckTokenExpire(token))
+        if (!_userRepository.CheckTokenExpire(_token))
         {
             TempData["Message"] = "Unauthorized";
             return RedirectToAction("SignIn");
         }
+        var claim = _userRepository.GetClaimFromToken(_token);
+        try
+        {
+            var user = _userRepository.GetUserByEmail(claim);
+            return View(user.Result);
+        }
+        catch (Exception e)
+        {
+            TempData["Message"] = e.Message;
+            return RedirectToAction("SignIn");
+        }
 
-        return View();
     }
-
-
+    
     [HttpPost]
     public async Task<ActionResult> SignIn(UserLogin userLogin)
     {

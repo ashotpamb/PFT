@@ -52,7 +52,7 @@ public class UserRepository : IUserRepository
             if (user == null) throw new Exception($"User with Emil: {userLogin.Email} not found");
 
             var passwordHasher = new PasswordHasher<string>();
-            var verificationResult = passwordHasher.VerifyHashedPassword(null,  user.Password,userLogin.Password);
+            var verificationResult = passwordHasher.VerifyHashedPassword(null, user.Password, userLogin.Password);
             if (verificationResult == PasswordVerificationResult.Success)
             {
                 var token = _jwtService.GenerateToken(userLogin);
@@ -61,9 +61,11 @@ public class UserRepository : IUserRepository
 
             throw new Exception("Wrong Password");
         }
+
         throw new Exception("Email or password is empty");
     }
-    public bool CheckTokenExpire(string token)
+
+    public bool CheckTokenExpire(string? token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         if (tokenHandler.CanReadToken(token))
@@ -71,13 +73,26 @@ public class UserRepository : IUserRepository
             var tokenObj = tokenHandler.ReadToken(token) as JwtSecurityToken;
 
             if (tokenObj != null)
-            {
-                if (tokenObj.ValidTo > DateTime.UtcNow) return true;
-            }
+                if (tokenObj.ValidTo > DateTime.UtcNow)
+                    return true;
         }
 
         return false;
     }
+
+    public string GetClaimFromToken(string token)
+    {
+        var tokenString = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        return tokenString.Claims.First(c => c.Type == "email").Value;
+    }
+
+    public async Task<User?> GetUserByEmail(string email)
+    {
+        var user = await _dataContext.User.FirstOrDefaultAsync(u => u.Email == email);
+        if (user == null) throw new Exception("User not found");
+        return user;
+    }
+
     private bool PasswordNotEmpty(string password)
     {
         return !string.IsNullOrEmpty(password);
