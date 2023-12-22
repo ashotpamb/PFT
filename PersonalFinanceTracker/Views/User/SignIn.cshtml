@@ -1,22 +1,27 @@
-@model dynamic
+@model UserLogin
 
 @{
     ViewBag.Title = "Login";
     Layout = "_Layout";
 }
-
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.Message
+    </div>
+}
 <h2>Welcome to login page</h2>
 <div class="card shadow">
     <div class="card-body">
         <h5 class="card-title text-center mb-4">Sign In</h5>
-        <form>
+        <form method="post" asp-controller="User" asp-action="SignIn">
             <div class="mb-3">
                 <label for="inputEmail" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
+                <input type="email" class="form-control" id="inputEmail" placeholder="Enter email" name="Email">
             </div>
             <div class="mb-3">
                 <label for="inputPassword" class="form-label">Password</label>
-                <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+                <input type="password" class="form-control" id="inputPassword" placeholder="Password" name="Password">
             </div>
             <button type="submit" class="btn btn-primary w-100">Sign In</button>
         </form>
