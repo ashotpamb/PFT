@@ -88,7 +88,7 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetUserByEmail(string email)
     {
-        var user = await _dataContext.User.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await _dataContext.User.Include(u => u.Transactions).FirstOrDefaultAsync(u => u.Email == email);
         if (user == null) throw new Exception("User not found");
         return user;
     }
