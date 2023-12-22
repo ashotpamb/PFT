@@ -7,13 +7,10 @@ namespace PersonalFinanceTracker.Controllers;
 public class UserController : Controller
 {
     private readonly IUserRepository _userRepository;
-    private readonly string? _token;
-    
 
-    public UserController(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor)
+    public UserController(IUserRepository userRepository)
     {
         _userRepository = userRepository;
-        _token = httpContextAccessor.HttpContext?.Session.GetString("AuthToken");
     }
 
 
@@ -32,18 +29,19 @@ public class UserController : Controller
 
     public IActionResult UserPage()
     {
-        if (string.IsNullOrEmpty(_token))
+        var token = HttpContext.Session.GetString("AuthToken");
+        if (string.IsNullOrEmpty(token))
         {
             TempData["Message"] = "Unauthorized";
             return RedirectToAction("SignIn");
         }
 
-        if (!_userRepository.CheckTokenExpire(_token))
+        if (!_userRepository.CheckTokenExpire(token))
         {
             TempData["Message"] = "Unauthorized";
             return RedirectToAction("SignIn");
         }
-        var claim = _userRepository.GetClaimFromToken(_token);
+        var claim = _userRepository.GetClaimFromToken(token);
         try
         {
             var user = _userRepository.GetUserByEmail(claim);
@@ -58,6 +56,7 @@ public class UserController : Controller
     }
     
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<ActionResult> SignIn(UserLogin userLogin)
     {
         try
@@ -66,9 +65,9 @@ public class UserController : Controller
             if (!string.IsNullOrEmpty(token))
             {
                 HttpContext.Session.SetString("AuthToken", token);
+                
                 return RedirectToAction("UserPage");
             }
-
             ViewBag.Message = "Failed to generate token";
             return View("SignIn");
         }

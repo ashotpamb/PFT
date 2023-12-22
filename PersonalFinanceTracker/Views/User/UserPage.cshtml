@@ -4,5 +4,55 @@
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
+<div class="container mt-5">
 
-<h2>Hello @Model.Email</h2>
+    <div class="row d-flex justify-content-center">
+
+        <div class="col-md-7">
+
+            <div class="card p-3 py-4">
+
+                <div class="text-center mt-3">
+                    <h5 class="mt-2 mb-0">@Model.FullName</h5>
+                </div>
+                 <div class="container">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Current Balance</h5>
+                            </div>
+                            <div class="card-body">
+                                <h3>$5,000.00</h3>
+                            </div>
+                        </div>
+                
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Recent Transactions</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    <li class="list-group-item">Groceries - $150.00</li>
+                                    <li class="list-group-item">Gasoline - $50.00</li>
+                                    <li class="list-group-item">Dinner - $80.00</li>
+                                    <!-- Add more transactions here -->
+                                </ul>
+                            </div>
+                        </div>
+                
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Expense Categories</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    <li class="list-group-item">Food - $300.00</li>
+                                    <li class="list-group-item">Transportation - $150.00</li>
+                                    <li class="list-group-item">Entertainment - $100.00</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>

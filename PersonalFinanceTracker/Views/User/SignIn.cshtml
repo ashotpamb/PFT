@@ -15,6 +15,7 @@
     <div class="card-body">
         <h5 class="card-title text-center mb-4">Sign In</h5>
         <form method="post" asp-controller="User" asp-action="SignIn">
+            @* @Html.AntiForgeryToken() *@
             <div class="mb-3">
                 <label for="inputEmail" class="form-label">Email address</label>
                 <input type="email" class="form-control" id="inputEmail" placeholder="Enter email" name="Email">
