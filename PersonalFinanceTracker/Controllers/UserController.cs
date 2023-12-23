@@ -20,6 +20,12 @@ public class UserController : Controller
         return View();
     }
 
+    public IActionResult SignOut()
+    {
+        HttpContext.Session.Remove("AuthToken");
+        return RedirectToAction("Index", "Home");
+    }
+
     [HttpGet]
     public IActionResult SignIn()
     {
@@ -30,31 +36,12 @@ public class UserController : Controller
     public IActionResult UserPage()
     {
         var token = HttpContext.Session.GetString("AuthToken");
-        if (string.IsNullOrEmpty(token))
-        {
-            TempData["Message"] = "Unauthorized";
-            return RedirectToAction("SignIn");
-        }
 
-        if (!_userRepository.CheckTokenExpire(token))
-        {
-            TempData["Message"] = "Unauthorized";
-            return RedirectToAction("SignIn");
-        }
         var claim = _userRepository.GetClaimFromToken(token);
-        try
-        {
-            var user = _userRepository.GetUserByEmail(claim);
-            return View(user.Result);
-        }
-        catch (Exception e)
-        {
-            TempData["Message"] = e.Message;
-            return RedirectToAction("SignIn");
-        }
-
+        var user = _userRepository.GetUserByEmail(claim);
+        return View(user.Result);
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<ActionResult> SignIn(UserLogin userLogin)
@@ -65,9 +52,10 @@ public class UserController : Controller
             if (!string.IsNullOrEmpty(token))
             {
                 HttpContext.Session.SetString("AuthToken", token);
-                
+
                 return RedirectToAction("UserPage");
             }
+
             ViewBag.Message = "Failed to generate token";
             return View("SignIn");
         }

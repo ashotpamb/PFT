@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PersonalFinanceTracker.Data;
+using PersonalFinanceTracker.Middlwares;
 using PersonalFinanceTracker.Repositories;
 using PersonalFinanceTracker.Services;
 
@@ -48,6 +49,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseAuthorizationMiddleware();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
