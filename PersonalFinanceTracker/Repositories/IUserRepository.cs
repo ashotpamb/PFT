@@ -9,4 +9,6 @@ public interface IUserRepository
     bool CheckTokenExpire(string? token);
     string GetClaimFromToken(string token);
     Task<User?> GetUserByEmail(string email);
+    Task<List<Transactions>> GetTransactions(int userID);
+    Task<bool> AddTransactionToUser(string email, Transactions transactions);
 }

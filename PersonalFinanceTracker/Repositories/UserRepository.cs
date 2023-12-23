@@ -93,6 +93,54 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public async Task<List<Transactions>> GetTransactions(int userID)
+    {
+        var user = await _dataContext.User.Include(t => t.Transactions)
+            .FirstOrDefaultAsync(u => u.UserId == userID);
+
+        if (user != null)
+        {
+            return user.Transactions.ToList();
+        }
+
+        return new List<Transactions>();
+    }
+
+
+    public async Task<bool> AddTransactionToUser(string email, Transactions transactions)
+    {
+        var user = await GetUserByEmail(email);
+
+        if (user == null) throw new Exception("User not found");
+
+        user.Transactions?.Add(transactions);
+        
+        switch (transactions.TransactionType)
+        {
+            case TransactionTypes.Income:
+                user.Balance += transactions.TransactionAmount;
+                break;
+            case TransactionTypes.Expanse :
+                user.Balance -= transactions.TransactionAmount;
+                break;
+        }
+
+        try
+        {
+            await _dataContext.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            throw new Exception(ex.Message);
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+
     private bool PasswordNotEmpty(string password)
     {
         return !string.IsNullOrEmpty(password);

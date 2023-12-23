@@ -23,7 +23,6 @@ public class AutorizationMiddleware
                 return;
             }
         }
-
         await _next(httpContext);
     }
 }

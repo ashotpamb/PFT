@@ -4,11 +4,18 @@
     ViewBag.Title = "title";
     Layout = "_User";
 }
-<div class="container mt-5">
+<canvas id="balanceChart" width="200" height="100" style="width: 1000px;height: 500px"></canvas>
 
+<div class="container mt-5">
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewBag.Message
+        </div>
+    }
     <div class="row d-flex justify-content-center">
 
-        <div class="col-md-7">
+        <div class="col">
 
             <div class="card p-3 py-4">
 
@@ -22,6 +29,7 @@
                             <h5 class="mb-0">Current Balance</h5>
                         </div>
                         <div class="card-body">
+                            <input type="hidden" id="userId" value="@Model.UserId">
                             <h3>$@Model.Balance.ToString("0.00")</h3>
                         </div>
                     </div>
@@ -36,7 +44,11 @@
                                 {
                                     @foreach (var transactions in Model.Transactions)
                                     {
-                                        <li class="list-group-item">Transaction: @transactions.TransactionAmount - @transactions.TransactionDate</li>
+                                        <li class="list-group-item">Transaction Date: @transactions.TransactionDate</li>
+                                        <li class="list-group-item">Transaction Description: @transactions.TransactionDescription</li>
+                                        <li class="list-group-item">Transaction Amount: @transactions.TransactionAmount.ToString("0.00")</li>
+                                        <li class="list-group-item">Transaction Type: @transactions.TransactionType.ToString()</li>
+                                        <hr/>
                                     }
                                 }
                                 else
@@ -48,39 +60,43 @@
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Expense Categories</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-group">
-                                <li class="list-group-item">Food - $300.00</li>
-                                <li class="list-group-item">Transportation - $150.00</li>
-                                <li class="list-group-item">Entertainment - $100.00</li>
-                            </ul>
-                        </div>
-                    </div>
+                    @* <div class="card"> *@
+                    @*     <div class="card-header"> *@
+                    @*         <h5 class="mb-0">Expense Categories</h5> *@
+                    @*     </div> *@
+                    @*     <div class="card-body"> *@
+                    @*         <ul class="list-group"> *@
+                    @*             <li class="list-group-item">Food - $300.00</li> *@
+                    @*             <li class="list-group-item">Transportation - $150.00</li> *@
+                    @*             <li class="list-group-item">Entertainment - $100.00</li> *@
+                    @*         </ul> *@
+                    @*     </div> *@
+                    @* </div> *@
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0">Add transaction</h5>
                         </div>
                         <div class="card-body">
-                            <div class="form-group">
-                                <select class="form-control" id="transactionType" required>
-                                    <option value="" selected disabled>Select Type</option>
-                                    <option value="income">Income</option>
-                                    <option value="expense">Expense</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="description">Description</label>
-                                <input type="text" class="form-control" id="description" placeholder="Enter description" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="amount">Amount</label>
-                                <input type="number" class="form-control" id="amount" placeholder="Enter amount" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Add Transaction</button>
+                            @using (Html.BeginForm("AddTransaction", "User", FormMethod.Post))
+                            {
+                                <div class="form-group">
+                                    <select class="form-control" id="transactionType" required name="type">
+                                        <option value="" selected disabled>Select Type</option>
+                                        <option value="1">Income</option>
+                                        <option value="2">Expense</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Description</label>
+                                    <input type="text" name="description" class="form-control" id="description" placeholder="Enter description" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="amount">Amount</label>
+                                    <input type="number" name="amount" class="form-control" id="amount" placeholder="Enter amount" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Add Transaction</button>
+                            }
+
                         </div>
                     </div>
                 </div>
@@ -88,3 +104,63 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+let id = $("#userId").val();
+  $.ajax({
+      url: '/User/GetTransactions', 
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",     
+      data: {userId:id},
+      type: 'GET',
+      success: function (data) {
+          let income = 0;
+          let expense = 0;
+          data = JSON.parse(data)
+          data.forEach(function (transaction) {
+              console.log(transaction.TransactionType)
+              if (transaction.TransactionType === 1) {
+                  income += transaction.TransactionAmount;
+              } else if (transaction.TransactionType === 2) {
+                  expense += transaction.TransactionAmount;
+              }
+          });
+  
+          var ctx = document.getElementById('balanceChart').getContext('2d');
+          const canvas = document.getElementById('balanceChart');
+          canvas.style.width = '1000px';
+          canvas.style.height = '500px';
+          var myChart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                  labels: ['Income', 'Expense'],
+                  datasets: [{
+                      label: 'Transaction Amount',
+                      data: [income, expense],
+                      backgroundColor: [
+                          'rgba(54, 162, 235, 0.2)',
+                      ],
+                      borderColor: [
+                          'rgba(54, 162, 235, 1)',
+                          'rgba(255, 99, 132, 1)'
+                      ],
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  }
+              }
+          });
+      },
+      error: function (xhr, status, error) {
+          console.error(error);
+      }
+  });
+
+</script>

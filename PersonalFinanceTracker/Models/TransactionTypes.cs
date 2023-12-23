@@ -3,5 +3,5 @@ namespace PersonalFinanceTracker.Models;
 public enum TransactionTypes
 {
     Income = 1,
-    Expose = 2
+    Expanse = 2
 }

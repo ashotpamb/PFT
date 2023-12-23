@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using PersonalFinanceTracker.Models;
 using PersonalFinanceTracker.Repositories;
+using JsonConverter = System.Text.Json.Serialization.JsonConverter;
 
 namespace PersonalFinanceTracker.Controllers;
 
@@ -13,7 +15,33 @@ public class UserController : Controller
         _userRepository = userRepository;
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddTransaction(IFormCollection formData)
+    {
+        Transactions transaction = new()
+        {
+            TransactionType = (TransactionTypes)Enum.Parse(typeof(TransactionTypes), formData["type"].ToString()),
+            TransactionDescription = formData["description"],
+            TransactionAmount = Convert.ToDecimal(formData["amount"]),
+            TransactionDate = DateTime.UtcNow
+        };
+        var token = HttpContext.Session.GetString("AuthToken");
+        var claim = _userRepository.GetClaimFromToken(token);
+        try
+        {
+            await _userRepository.AddTransactionToUser(claim, transaction);
+            ViewBag.Message = "Successfully Transaction";
+            return RedirectToAction("UserPage");
 
+        }
+        catch (Exception e)
+        {
+            ViewBag.Message = e.Message;
+            return RedirectToAction("UserPage");
+        }
+    }
+    
     [HttpGet]
     public IActionResult Register()
     {
@@ -32,16 +60,27 @@ public class UserController : Controller
         ViewBag.Message = TempData["Message"] as string ?? string.Empty;
         return View();
     }
-
+    [Route("User/MainPage")]
     public IActionResult UserPage()
     {
         var token = HttpContext.Session.GetString("AuthToken");
-
         var claim = _userRepository.GetClaimFromToken(token);
         var user = _userRepository.GetUserByEmail(claim);
         return View(user.Result);
     }
 
+    [HttpGet]
+    public async Task<JsonResult> GetTransactions(int userID)
+    {
+        var settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
+        var transations = await _userRepository.GetTransactions(userID);
+        var serializedData = JsonConvert.SerializeObject(transations, settings);
+        return Json(serializedData);
+    }
+    
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<ActionResult> SignIn(UserLogin userLogin)
