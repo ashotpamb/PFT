@@ -11,7 +11,7 @@ services:
       MYSQL_USER: worker
       MYSQL_PASSWORD: root
     networks:
-      - my_network
+      - locale
   app:
     build:
       context: .
@@ -22,7 +22,7 @@ services:
 #    environment:
 #      - ASPNETCORE_ENVIRONMENT=Development
     networks:
-      - my_network
+      - locale
     depends_on:
       - app_mysql
 
@@ -33,7 +33,7 @@ services:
     volumes:
       - ./Docker/Nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
-      - my_network
+      - locale
 
 networks:
-  my_network:
+  locale:

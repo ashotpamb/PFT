@@ -2,5 +2,58 @@
     ViewData["Title"] = "Home Page";
 }
 <main>
-   
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="feature-section">
+                    <h2>Personal Finance Tracker</h2>
+                    <p>Track and manage your finances effectively with these key features:</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="card-body">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <h3>Transaction Management</h3>
+                                    <p>Easily input and categorize financial transactions for a comprehensive history.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="card-body">
+                                    <i class="fas fa-coins"></i>
+                                    <h3>Income and Expense Tracking</h3>
+                                    <p>Manage income sources and diverse expenses for accurate financial records.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="card-body">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <h3>Visual Diagrams</h3>
+                                    <p>Understand spending patterns and income sources through graphical representations.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="card-body">
+                                    <i class="fas fa-lock"></i>
+                                    <h3>JWT Authentication</h3>
+                                    <p>Secure access with JSON Web Token authentication for sensitive financial data.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cta-section">
+                <h2>Start Managing Your Finances Today</h2>
+                <p>Sign up or log in to begin tracking your finances with ease and security.</p>
+                <a href="@Url.Action("SignIn", "User")" class="btn btn-lg btn-outline-light">Log In</a>
+                <a href="@Url.Action("Register", "User")" class="btn btn-lg btn-light ml-3">Sign Up</a>
+            </div>
+        </div>
+    </div>
 </main>

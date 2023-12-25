@@ -20,3 +20,40 @@ html {
 body {
     margin-bottom: 60px;
 }
+.feature-section {
+    margin-bottom: 40px;
+}
+
+.feature-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.feature-section p {
+    font-size: 1.1rem;
+}
+
+.feature-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.feature-list li {
+    margin-bottom: 10px;
+}
+
+.cta-section {
+    background-color: #146c43;
+    color: #ffffff;
+    text-align: center;
+    padding: 60px 0;
+}
+
+.cta-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.cta-section p {
+    font-size: 1.1rem;
+}
