@@ -98,10 +98,7 @@ public class UserRepository : IUserRepository
         var user = await _dataContext.User.Include(t => t.Transactions)
             .FirstOrDefaultAsync(u => u.UserId == userID);
 
-        if (user != null)
-        {
-            return user.Transactions.ToList();
-        }
+        if (user != null) return user.Transactions.ToList();
 
         return new List<Transactions>();
     }
@@ -114,13 +111,13 @@ public class UserRepository : IUserRepository
         if (user == null) throw new Exception("User not found");
 
         user.Transactions?.Add(transactions);
-        
+
         switch (transactions.TransactionType)
         {
             case TransactionTypes.Income:
                 user.Balance += transactions.TransactionAmount;
                 break;
-            case TransactionTypes.Expanse :
+            case TransactionTypes.Expanse:
                 user.Balance -= transactions.TransactionAmount;
                 break;
         }
@@ -145,6 +142,25 @@ public class UserRepository : IUserRepository
         var transactions = await _dataContext.Transaction
             .Where(t => t.User.UserId == userId && t.TransactionType == transactionType)
             .ToListAsync();
+        return transactions;
+    }
+
+    public async Task<List<Transactions>> SearchTransactions(int userId, string searchQuery)
+    {
+        List<Transactions> transactions;
+        
+        if (string.IsNullOrEmpty(searchQuery))
+        {
+            transactions = await _dataContext.Transaction.Where(t => t.User.UserId == userId).ToListAsync();
+        }
+        else
+        {
+            transactions = await _dataContext.Transaction.Where(t =>
+                    t.TransactionDescription != null && t.TransactionDescription.ToLower().Contains(searchQuery) &&
+                    t.User.UserId == userId)
+                .ToListAsync();
+        }
+
         return transactions;
     }
 

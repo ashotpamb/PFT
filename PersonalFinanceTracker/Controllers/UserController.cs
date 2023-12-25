@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PersonalFinanceTracker.Models;
 using PersonalFinanceTracker.Repositories;
-using JsonConverter = System.Text.Json.Serialization.JsonConverter;
 
 namespace PersonalFinanceTracker.Controllers;
 
@@ -33,7 +32,6 @@ public class UserController : Controller
             await _userRepository.AddTransactionToUser(claim, transaction);
             ViewBag.Message = "Successfully Transaction";
             return RedirectToAction("UserPage");
-
         }
         catch (Exception e)
         {
@@ -41,7 +39,7 @@ public class UserController : Controller
             return RedirectToAction("UserPage");
         }
     }
-    
+
     [HttpGet]
     public IActionResult Register()
     {
@@ -62,22 +60,42 @@ public class UserController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> FilterTransactions(int userId, int transactionTypeFromRequest)
+    public async Task<IActionResult> FilterTransactions(int userId, int transactionTypeFromRequest, int filterType)
     {
-        var transactionType = (TransactionTypes)Enum.Parse(typeof(TransactionTypes), transactionTypeFromRequest.ToString());
-        var transactions = await _userRepository.FilterTransactions(userId, transactionType);
+        var transactionType =
+            (TransactionTypes)Enum.Parse(typeof(TransactionTypes), transactionTypeFromRequest.ToString());
+        
+        var filter = (Filter)Enum.Parse(typeof(Filter), filterType.ToString());
+        
+        List<Transactions> transactions = new List<Transactions>();
+        
+        switch (filter)
+        {
+            case Filter.Filter:
+                transactions = await _userRepository.FilterTransactions(userId, transactionType);
+                break;
+            case Filter.Reset:
+                transactions = await _userRepository.GetTransactions(userId);
+                break;
+ 
+        }
+        return PartialView("_TransactionsFilter", transactions);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SearchTransactions(int userId, string searchQuery)
+    {
+        var transactions = await _userRepository.SearchTransactions(userId, searchQuery);
         return PartialView("_TransactionsFilter", transactions);
     }
 
     [Route("User/MainPage")]
     public IActionResult UserPage()
     {
-       
         var token = HttpContext.Session.GetString("AuthToken");
         var claim = _userRepository.GetClaimFromToken(token);
         var user = _userRepository.GetUserByEmail(claim);
         ViewBag.Message = TempData["Message"] as string ?? string.Empty;
-
         return View(user.Result);
     }
 
@@ -92,7 +110,7 @@ public class UserController : Controller
         var serializedData = JsonConvert.SerializeObject(transations, settings);
         return Json(serializedData);
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<ActionResult> SignIn(UserLogin userLogin)

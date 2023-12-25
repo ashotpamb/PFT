@@ -123,6 +123,8 @@
 <script>
 let id = $("#userId").val();
 
+
+//Create diagram for transactions
  $.ajax({
       url: '/User/GetTransactions', 
       contentType: "application/json; charset=utf-8",
@@ -173,6 +175,8 @@ let id = $("#userId").val();
           console.error(error);
       }
   });
+ 
+ //Filter Transactions
  $(document).on("click", "#filterButton", async () => {
      var transactionType = $("#incomeSelect").val()
      var userid = $("#userId").val();
@@ -181,28 +185,62 @@ let id = $("#userId").val();
         alert("Please select Transaction type")
         
      } else {
-         filterTransactions(userid,  transactionType)
+         filterTransactions(userid,  transactionType, 2)
      }
   })
+  
+  //Reset transaction filter 
    $(document).on("click", "#resetButton", async () => {
+       
      var transactionType = $("#incomeSelect").val()
      var userid = $("#userId").val();
+     
      if (transactionType == "")
      {
         alert("Please select Transaction type")
         
      } else {
-         filterTransactions(userid,  transactionType)
+         filterTransactions(userid,  transactionType, 1)
      }
   })
   
-  function filterTransactions(userId, transactionType)
+  //Search Transactions
+  $(document).on("click", "#searchButton", async () => {
+       
+     var userid = $("#userId").val();
+     var searchTerm = $("#searchInput").val();
+     SearchTransactions(userid, searchTerm)
+  })
+  
+  function SearchTransactions(userId, searchTerm)
+  {
+       $.ajax({
+             url: '/User/SearchTransactions', 
+             contentType: "HTML",
+             dataType: "html",     
+             data: {userId:userId,searchQuery:searchTerm},
+             type: 'GET',
+             success: function (data) {
+              if (data !== undefined)
+              {
+                $(".scrollable-list").html(data)
+              }
+                  
+             },
+             error: function (xhr, status, error) {
+                 console.error(error);
+             }
+         });
+  }
+  
+  
+  function filterTransactions(userId, transactionType,filterType)
   {
        $.ajax({
              url: '/User/FilterTransactions', 
              contentType: "HTML",
              dataType: "html",     
-             data: {userId:id,transactionTypeFromRequest:transactionType},
+             data: {userId:userId,transactionTypeFromRequest:transactionType, filterType:filterType},
              type: 'GET',
              success: function (data) {
               if (data !== undefined)
