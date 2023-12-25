@@ -43,14 +43,18 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 var app = builder.Build();
 
 app.UseSession();
+
 if (!app.Environment.IsDevelopment())
 {
+    var dbContextOptions = builder.Services.BuildServiceProvider().GetService<DbContextOptions<DataContext>>();
+    using var dbContext = new DataContext(dbContextOptions);
+    dbContext.Database.Migrate();
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
 app.UseAuthorizationMiddleware();
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

@@ -19,13 +19,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Docker\Nginx\" />
       <Folder Include="Migrations\" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="..\.dockerignore">
-        <Link>Docker\NET\.dockerignore</Link>
+        <Link>.dockerignore</Link>
       </Content>
     </ItemGroup>
 
