@@ -60,12 +60,24 @@ public class UserController : Controller
         ViewBag.Message = TempData["Message"] as string ?? string.Empty;
         return View();
     }
+
+    [HttpGet]
+    public async Task<IActionResult> FilterTransactions(int userId, int transactionTypeFromRequest)
+    {
+        var transactionType = (TransactionTypes)Enum.Parse(typeof(TransactionTypes), transactionTypeFromRequest.ToString());
+        var transactions = await _userRepository.FilterTransactions(userId, transactionType);
+        return PartialView("_TransactionsFilter", transactions);
+    }
+
     [Route("User/MainPage")]
     public IActionResult UserPage()
     {
+       
         var token = HttpContext.Session.GetString("AuthToken");
         var claim = _userRepository.GetClaimFromToken(token);
         var user = _userRepository.GetUserByEmail(claim);
+        ViewBag.Message = TempData["Message"] as string ?? string.Empty;
+
         return View(user.Result);
     }
 

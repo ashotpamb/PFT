@@ -13,7 +13,9 @@ public class AutorizationMiddleware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        if (httpContext.Request.Path.StartsWithSegments("/User") && httpContext.Request.Path != "/User/SignIN")
+        var pattern = "^/User/(SignIN|Register)$";
+
+        if (httpContext.Request.Path.StartsWithSegments("/User") && httpContext.Request.Path != "/User/SignIN" && httpContext.Request.Path != "/User/Register")
         {
             var token = httpContext.Session.GetString("AuthToken");
             var _userRepository = httpContext.RequestServices.GetRequiredService<IUserRepository>();

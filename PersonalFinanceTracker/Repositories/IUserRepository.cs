@@ -11,4 +11,5 @@ public interface IUserRepository
     Task<User?> GetUserByEmail(string email);
     Task<List<Transactions>> GetTransactions(int userID);
     Task<bool> AddTransactionToUser(string email, Transactions transactions);
+    Task<List<Transactions>> FilterTransactions(int userId, TransactionTypes transactionTypes);
 }

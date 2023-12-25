@@ -1,7 +1,7 @@
 @model User
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Personal Finance Tracker";
     Layout = "_User";
 }
 <canvas id="balanceChart" width="200" height="100" style="width: 1000px;height: 500px"></canvas>
@@ -38,7 +38,20 @@
                         <div class="card-header">
                             <h5 class="mb-0">Recent Transactions</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="mb-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+                            <button class="btn btn-outline-secondary" type="button" id="searchButton">Search</button>
+                            <div class="mb-3 input-group">
+                                <select id="incomeSelect" class="form-control">
+                                    <option value="">Select Type</option>
+                                    <option value="1">Income</option>
+                                    <option value="2">Expanse</option>
+                                </select>
+                                <button class="btn btn-primary" id="filterButton">Filter</button>
+                                <button class="btn btn-secondary" id="resetButton">Reset</button>
+                            </div>
+                        </div>
+                        <div class="card-body scrollable-list">
                             <ul class="list-group">
                                 @if (Model.Transactions.Count > 0)
                                 {
@@ -109,7 +122,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 let id = $("#userId").val();
-  $.ajax({
+
+ $.ajax({
       url: '/User/GetTransactions', 
       contentType: "application/json; charset=utf-8",
       dataType: "json",     
@@ -120,7 +134,6 @@ let id = $("#userId").val();
           let expense = 0;
           data = JSON.parse(data)
           data.forEach(function (transaction) {
-              console.log(transaction.TransactionType)
               if (transaction.TransactionType === 1) {
                   income += transaction.TransactionAmount;
               } else if (transaction.TransactionType === 2) {
@@ -129,9 +142,7 @@ let id = $("#userId").val();
           });
   
           var ctx = document.getElementById('balanceChart').getContext('2d');
-          const canvas = document.getElementById('balanceChart');
-          canvas.style.width = '1000px';
-          canvas.style.height = '500px';
+
           var myChart = new Chart(ctx, {
               type: 'bar',
               data: {
@@ -162,5 +173,49 @@ let id = $("#userId").val();
           console.error(error);
       }
   });
+ $(document).on("click", "#filterButton", async () => {
+     var transactionType = $("#incomeSelect").val()
+     var userid = $("#userId").val();
+     if (transactionType == "")
+     {
+        alert("Please select Transaction type")
+        
+     } else {
+         filterTransactions(userid,  transactionType)
+     }
+  })
+   $(document).on("click", "#resetButton", async () => {
+     var transactionType = $("#incomeSelect").val()
+     var userid = $("#userId").val();
+     if (transactionType == "")
+     {
+        alert("Please select Transaction type")
+        
+     } else {
+         filterTransactions(userid,  transactionType)
+     }
+  })
+  
+  function filterTransactions(userId, transactionType)
+  {
+       $.ajax({
+             url: '/User/FilterTransactions', 
+             contentType: "HTML",
+             dataType: "html",     
+             data: {userId:id,transactionTypeFromRequest:transactionType},
+             type: 'GET',
+             success: function (data) {
+              if (data !== undefined)
+              {
+                $(".scrollable-list").html(data)
+              }
+                  
+             },
+             error: function (xhr, status, error) {
+                 console.error(error);
+             }
+         });
+  }
+
 
 </script>

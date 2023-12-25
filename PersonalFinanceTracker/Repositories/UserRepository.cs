@@ -140,6 +140,14 @@ public class UserRepository : IUserRepository
         }
     }
 
+    public async Task<List<Transactions>> FilterTransactions(int userId, TransactionTypes transactionType)
+    {
+        var transactions = await _dataContext.Transaction
+            .Where(t => t.User.UserId == userId && t.TransactionType == transactionType)
+            .ToListAsync();
+        return transactions;
+    }
+
 
     private bool PasswordNotEmpty(string password)
     {
