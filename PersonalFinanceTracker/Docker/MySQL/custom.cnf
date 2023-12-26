@@ -1,9 +1,0 @@
-[mysqld]
-mysql_root_password = root
-
-# Create a user named 'worker' with a password
-CREATE USER 'worker'@'%' IDENTIFIED BY 'worker_password';
-GRANT ALL PRIVILEGES ON *.* TO 'worker'@'%';
-
-# Create a database named 'PFT'
-CREATE DATABASE IF NOT EXISTS PFT;
